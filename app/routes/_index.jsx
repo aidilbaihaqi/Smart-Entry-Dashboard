@@ -4,6 +4,7 @@ import SensorCard from "../components/SensorCard";
 import EventLogTable from "../components/EventLogTable";
 import DashboardHeader from "../components/DashboardHeader";
 import { LampuStatusCard, FanStatusCard } from "../components/LampFanStatus";
+import NotificationCard from "../components/NotificationCard";
 
 // Responsive hook
 function useIsMobile(breakpoint = 900) {
@@ -55,6 +56,17 @@ export default function Index() {
   // Atur tinggi minimum grid kiri dan kanan agar rata desktop
   // (optional: bisa dihapus jika table selalu kurang dari 10 baris)
   const minSectionHeight = isMobile ? undefined : 460;
+
+  const [notification, setNotification] = useState(null);
+
+  useEffect(() => {
+    // ...listener info dan logs sebelumnya
+    const notifRef = ref(db, "/notification/message");
+    onValue(notifRef, (snapshot) => {
+      const val = snapshot.val();
+      setNotification(val); // val bisa string atau null
+    });
+  }, []);
 
   return (
     <div style={pageStyle}>
@@ -122,8 +134,14 @@ export default function Index() {
               alignItems: "stretch",
             }}
           >
-            <LampuStatusCard isOn={info.lamp_status === "on"} style={{ height: "100%" }} />
-            <FanStatusCard isOn={info.fan_status === "on"} style={{ height: "100%" }} />
+            <LampuStatusCard
+              isOn={info.lamp_status === "on"}
+              style={{ height: "100%" }}
+            />
+            <FanStatusCard
+              isOn={info.fan_status === "on"}
+              style={{ height: "100%" }}
+            />
           </div>
         </div>
 
@@ -155,6 +173,9 @@ export default function Index() {
           <div style={{ flexGrow: 1 }}>
             <EventLogTable logs={logs} />
           </div>
+
+          {/* Notifikasi */}
+          <NotificationCard message={notification} />
         </div>
       </div>
 
